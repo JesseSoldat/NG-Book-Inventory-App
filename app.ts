@@ -2,7 +2,7 @@ import {Component, EventEmitter} from 'angular2/core';
 
 import {bootstrap} from 'angular2/platform/browser';
 
-// 132% 78
+// 132% 92
 class Product {
 	constructor(
 		public sku: string,
@@ -10,11 +10,9 @@ class Product {
 		public imageUrl: string,
 		public department: string[],
 		public price: number){
-
-
 	}
 }
-
+//Product Image
 @Component({
 	selector: 'product-image',
 	template: `<h1>Product</h1>`
@@ -23,28 +21,76 @@ class Product {
 class ProductImage {
 
 }
-//ProductList
+
+//ProductRow
 @Component({
-	selector: 'product-list',
+	selector: 'product-row',
+	inputs: ['product'],
+	host: {'class': 'item'},
 	template: `
-	<div class="ui items">
+	<div class="content">
+		<div class="header">{{product.name}}</div>
+		<div class="meta">
+			<div class="product-sku">SKU #{{product.sku}}</div>
+			<div class="description">
+			</div>
 	</div>
 	`
 })
-class ProductList {
+class ProductRow {
+	product: Product;
 
 }
 
+//ProductList
+@Component({
+	selector: 'products-list',
+	directives: [ProductRow],
+	inputs: ['productList'],
+	outputs: ['onProductSelected'],
+	template: `
+	<div class="ui items">
+		<product-row *ngFor="#myProduct of productList"
+			[product]="myProduct">
+			(click)="clicked(myProduct)"
+			[class.selected]="isSelected(myProduct)"
+		</product-row>
+	</div>
+	`
+})
+class ProductsList {
+	productList: Product[];
+	onProductSelected: EventEmitter<Product>;
+	currentProduct: Product;
+
+	constructor(){
+		this.onProductSelected = new EventEmitter();
+	}
+	clicked(product: Product): void {
+		console.log(product);
+		this.currentProduct = product;
+		this.onProductSelected.emit(product);
+	}
+	isSelected(product: Product): boolean {
+		if(!product || !this.currentProduct){
+			return false;
+		}
+		return product.sku === this.currentProduct.sku;
+	}
+}
 //InventoryApp
 @Component({
 	selector: 'inventory-app',
-	directives: [ProductList],
+	directives: [ProductsList],
 	template: `
-	<div class="inventory-app" *ngFor="#product of products">
-		<h1>{{ product.name }}</h1>
-		<span>{{ product.sku }}</span>
-		<products-list></products-list>
+	<div class="inventory-app">
+		<h1>Inventory App</h1>
+		<products-list
+			[productList]="products"
+			(onProductSelected)="productWasSelected($event)">
+		</products-list>
 	</div>
+
 	`
 
 })
