@@ -2,7 +2,7 @@ import {Component, EventEmitter} from 'angular2/core';
 
 import {bootstrap} from 'angular2/platform/browser';
 
-// 132% 92
+// 150% 100
 class Product {
 	constructor(
 		public sku: string,
@@ -14,12 +14,30 @@ class Product {
 }
 //Product Image
 @Component({
-	selector: 'product-image',
-	template: `<h1>Product</h1>`
+  selector: 'product-image',
+  host: {class: 'ui small image'},
+  inputs: ['product'],
+  template: `
+  <img class="product-image" [src]="product.imageUrl">
+  `
 })
-
 class ProductImage {
-
+  product: Product;
+}
+//Product Department
+@Component({
+	selector: 'product-department',
+	inputs: ['product'],
+	template: `
+	<div class="product-department">
+		<span *ngFor="#name of product.department; #i=index">
+			<a href="#">{{name}}</a>
+		</span>
+	</div>
+	`
+})
+class ProductDepartment {
+  product: Product;
 }
 
 //ProductRow
@@ -27,12 +45,17 @@ class ProductImage {
 	selector: 'product-row',
 	inputs: ['product'],
 	host: {'class': 'item'},
+	directives: [ProductImage, ProductDepartment],
 	template: `
+	<product-image [product]="product"></product-image>
 	<div class="content">
 		<div class="header">{{product.name}}</div>
 		<div class="meta">
 			<div class="product-sku">SKU #{{product.sku}}</div>
 			<div class="description">
+				<product-department
+					[product]="product">
+				</product-department>
 			</div>
 	</div>
 	`
@@ -84,7 +107,6 @@ class ProductsList {
 	directives: [ProductsList],
 	template: `
 	<div class="inventory-app">
-		<h1>Inventory App</h1>
 		<products-list
 			[productList]="products"
 			(onProductSelected)="productWasSelected($event)">
