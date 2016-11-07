@@ -32,6 +32,7 @@ class ProductImage {
 	<div class="product-department">
 		<span *ngFor="#name of product.department; #i=index">
 			<a href="#">{{name}}</a>
+			<span>{{i < (product.department.length -1) ? '>' : ''}}</span>
 		</span>
 	</div>
 	`
@@ -39,13 +40,24 @@ class ProductImage {
 class ProductDepartment {
   product: Product;
 }
+//Product Price
+@Component({
+	selector: 'price-display',
+	inputs: ['price'],
+	template: `
+	<div class="price-display">\${{price}}</div>
+	`
+})
+class PriceDisplay {
+	price: number;
+}
 
 //ProductRow
 @Component({
 	selector: 'product-row',
 	inputs: ['product'],
 	host: {'class': 'item'},
-	directives: [ProductImage, ProductDepartment],
+	directives: [ProductImage, ProductDepartment, PriceDisplay],
 	template: `
 	<product-image [product]="product"></product-image>
 	<div class="content">
@@ -58,11 +70,11 @@ class ProductDepartment {
 				</product-department>
 			</div>
 	</div>
+	<price-display [price]="product.price"></price-display>
 	`
 })
 class ProductRow {
 	product: Product;
-
 }
 
 //ProductList
@@ -74,9 +86,9 @@ class ProductRow {
 	template: `
 	<div class="ui items">
 		<product-row *ngFor="#myProduct of productList"
-			[product]="myProduct">
-			(click)="clicked(myProduct)"
-			[class.selected]="isSelected(myProduct)"
+			[product]="myProduct"
+			(click)='clicked(myProduct)'
+			[class.selected]="isSelected(myProduct)">
 		</product-row>
 	</div>
 	`
